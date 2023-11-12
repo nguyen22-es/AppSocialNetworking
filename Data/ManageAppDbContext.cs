@@ -1,4 +1,4 @@
-﻿using DataAccess.Entities;
+﻿using Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace DataAccess
+namespace Data
 {
     public class ManageAppDbContext:IdentityDbContext<ManagerUser>
     {

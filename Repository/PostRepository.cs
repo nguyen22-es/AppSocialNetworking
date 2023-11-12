@@ -1,5 +1,5 @@
-﻿using DataAccess;
-using DataAccess.Entities;
+﻿using Data;
+using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace SocialNetworking.Repository
@@ -31,10 +31,16 @@ namespace SocialNetworking.Repository
 
         public List<Posts> GetAll(string Id)
         {
-            var posts = _manageAppDbContext.Posts.Where(m => m.UserID == Id).Include(p => p.FromUser).Include(p => p.Comments).ToList();
+            var posts = _manageAppDbContext.Posts.Where(m => m.UserID == Id).OrderByDescending(m => m.TimePost).Include(p => p.FromUser).Include(p => p.Comments).ToList();
 
 
 
+            return posts;
+        }
+
+        public List<Posts> GetAllFriend(string Id)
+        {
+            var posts = _manageAppDbContext.Posts.Where(m => m.UserID == Id).Include(p => p.FromUser).Include(p => p.Comments).Take(2).AsEnumerable().ToList();
             return posts;
         }
 

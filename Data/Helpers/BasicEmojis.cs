@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DataAccess.Helpers
+namespace Data.Helpers
 {
     public class BasicEmojis
     {

@@ -1,22 +1,15 @@
-﻿using DataAccess;
-using DataAccess.Entities;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+﻿
+using Data;
+using Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using SocialNetworking.Hubs;
+using SocialNetworking.Repository;
+using SocialNetworking.Services;
 using SocialNetworkingApi.IdentityServer;
 using SocialNetworkingApi.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 
 namespace SocialNetworking
@@ -42,6 +35,18 @@ namespace SocialNetworking
                 .AddEntityFrameworkStores<ManageAppDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.AddScoped<UserManager<ManagerUser>>();
+            services.AddTransient<IEmailSender, EmailSenderService>();
+            services.AddTransient<IMessagesService, MessagesService>();
+            services.AddTransient<IPostService, PostService>();
+            services.AddScoped<IFriendShipService, FriendShipService>();
+            services.AddTransient<IFriendShipsDbRepository, FriendShipsRepository>();
+            services.AddTransient<ICommentsDbRepository, CommentsRepository>();
+            services.AddTransient<IMessageDbRepository, MessageRepository>();
+            services.AddTransient<IPostDbRepository, PostRepository>();
+         
+            // other services
+            services.AddAutoMapper(typeof(Startup));
             var builder = services.AddIdentityServer(options =>
             {
                 options.Events.RaiseErrorEvents = true;
@@ -50,37 +55,39 @@ namespace SocialNetworking
                 options.Events.RaiseSuccessEvents = true;
 
             }) 
-          .AddInMemoryApiResources(Config.Apis) // bên folder IdentityServer thêm Config
-                                                // .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
-          .AddInMemoryClients(Config.Clients) // lấy ra các client
-          .AddInMemoryIdentityResources(Config.Ids)
+          .AddInMemoryApiResources(Config.ApiResources)
+                                               
+          .AddInMemoryClients(Config.Clients) 
+          .AddInMemoryIdentityResources(Config.IdentityResources)
 
           .AddInMemoryApiScopes(Config.ApiScopes)
           .AddAspNetIdentity<ManagerUser>()
           .AddDeveloperSigningCredential();
-           
 
-            services.AddTransient<IEmailSender, EmailSenderService>();
-
-
-            services.AddAutoMapper(typeof(Startup));
-
+            /*  builder.Services.AddAuthentication("Bearer")
+      .AddIdentityServerAuthentication("Bearer", options =>
+      {
+          options.Authority = "https://localhost:5443";
+          options.ApiName = "WebApp";
+      });*/
 
             services.AddAuthentication()
-             .AddLocalApi("Bearer", option =>
-             {
-                 option.ExpectedScope = "api.WebApp"; 
-              });
-           
+    .AddIdentityServerAuthentication("Bearer", options =>
+    {
+        options.Authority = "https://localhost:5443";
+        options.ApiName = "WebApp";
+       
+    });
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Bearer", policy =>  // thêm một cái chính sách
+                options.AddPolicy("Bearer", policy =>
                 {
-                    policy.AddAuthenticationSchemes("Bearer"); 
-                    policy.RequireAuthenticatedUser(); 
+                    policy.AddAuthenticationSchemes("Bearer");
+                    policy.RequireAuthenticatedUser();
                 });
             });
+
 
             services.AddRazorPages(options =>
             {
@@ -97,7 +104,7 @@ namespace SocialNetworking
 
 
             services.AddControllersWithViews();
-
+            services.AddSignalR();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApp Space Api", Version = "v1" });
@@ -109,7 +116,7 @@ namespace SocialNetworking
                     {
                         Implicit = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri(Configuration["AuthorityUrl"]),
+                            AuthorizationUrl = new Uri(Configuration["AuthorityUrl"] + "/connect/authorize"),
                             Scopes = new Dictionary<string, string> { { "api.WebApp", "WebApp API" } }
                         },
                     },
@@ -150,7 +157,7 @@ namespace SocialNetworking
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-           // app.UseIdentityServer();
+            app.UseIdentityServer();
 
             app.UseAuthentication();
 
@@ -160,7 +167,8 @@ namespace SocialNetworking
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
+           
+              //  endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
                 endpoints.MapHub<ChatHub>("/chatHub");
             });

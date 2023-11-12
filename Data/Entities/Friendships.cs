@@ -1,4 +1,4 @@
-﻿namespace DataAccess.Entities
+﻿namespace Data.Entities
 {
     public class Friendships
     {

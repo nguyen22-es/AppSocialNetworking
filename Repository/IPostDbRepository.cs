@@ -1,4 +1,4 @@
-﻿using DataAccess.Entities;
+﻿using Data.Entities;
 
 namespace SocialNetworking.Repository
 {
@@ -6,6 +6,7 @@ namespace SocialNetworking.Repository
     {
         void CreatePosts(Posts posts);
         List<Posts> GetAll(string Id);
+        List<Posts> GetAllFriend(string Id);
         void DeletePosts(Guid id);
         void UpdatePosts(Posts  posts); // sửa post
 
