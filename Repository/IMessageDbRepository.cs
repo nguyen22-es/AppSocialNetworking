@@ -1,4 +1,4 @@
-﻿using DataAccess.Entities;
+﻿using Data.Entities;
 
 namespace SocialNetworking.Repository
 {

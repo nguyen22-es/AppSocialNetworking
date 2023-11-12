@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Data.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,12 +9,14 @@ namespace SocialNetworking.Models
 {
     public class MessageViewModel
     {
-        [Required]
+        public Guid MessageID { get; set; }
+
+        public UserViewModel SenderUser { get; set; }
+
+        public UserViewModel ReceiverUser { get; set; }
+        public DateTime TimeSend { get; set; }
         public string Content { get; set; }
-        public string Timestamp { get; set; }
-        public string From { get; set; }
-        [Required]
-        public string Room { get; set; }
-        public string Avatar { get; set; }
+
+
     }
 }

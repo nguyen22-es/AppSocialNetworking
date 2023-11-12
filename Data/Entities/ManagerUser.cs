@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace DataAccess.Entities
+namespace Data.Entities
 {
     public class ManagerUser : IdentityUser
     {

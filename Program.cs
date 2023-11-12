@@ -12,5 +12,6 @@ internal class Program
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
+
             });
 }

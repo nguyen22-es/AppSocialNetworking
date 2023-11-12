@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 
 
-namespace DataAccess
+namespace Data
 {
     public class ManageAppDbContextFactory : IDesignTimeDbContextFactory<ManageAppDbContext>
     {

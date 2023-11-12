@@ -10,21 +10,23 @@ namespace SocialNetworkingApi.IdentityServer
     public class Config
     {
         // định nghĩa các Resource gì  // cho user quản lý   // chả về 1 danh sách các identityresource
-        public static IEnumerable<IdentityResource> Ids =>
+        public static IEnumerable<IdentityResource> IdentityResources =>
           new IdentityResource[]
           {
               // user quản lý nhứng gì này // chuẩn của identity ít nhất phải có 2 thằng này
                 new IdentityResources.OpenId(),
-                new IdentityResources.Profile()
+                new IdentityResources.Profile(),
+              
               //vd:
               // new IdentityResources.Email(),
               // new IdentityResources.Phone()
           };
 
         // danh sách các Api ở đây ta chỉ có mỗi thằng knowledgespace
-        public static IEnumerable<ApiResource> Apis =>
+        public static IEnumerable<ApiResource> ApiResources =>
             new ApiResource[]
             {
+              
                 new ApiResource("api.WebApp", "WebApp API")
             };
 
@@ -33,7 +35,8 @@ namespace SocialNetworkingApi.IdentityServer
         public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
         {
-                new ApiScope("api.WebApp", "WebApp API")
+                new ApiScope("api.WebApp", "WebApp API"),
+               
         };
 
 
@@ -43,23 +46,23 @@ namespace SocialNetworkingApi.IdentityServer
         public static IEnumerable<Client> Clients =>
             new Client[]
             {
+               
                 new Client
                 {
+                  
                     ClientId = "WebApp",
-                    ClientSecrets = { new Secret("secret".Sha256()) },//  mã hóa theo Sha256
+                    ClientSecrets = { new Secret("secret".Sha256()) },
 
                     AllowedGrantTypes = GrantTypes.Code,
                     RequireConsent = false,
                     RequirePkce = true,
                     AllowOfflineAccess = true,
-                    AllowedCorsOrigins={"http://localhost/" },
-
                     // đăng nhập thành công thì redirect lại theo đường dẫn này
-                    RedirectUris = { "https://localhost:5002/signin-oidc" },
-
+                    RedirectUris = { "https://localhost:5444/signin-oidc" },
+                 //   FrontChannelLogoutUri = "https://localhost:5444/signout-oidc",
                     // khi logout nó chạy cổng này và sử lý logout bên kia
-                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-
+                    PostLogoutRedirectUris = { "https://localhost:5444/" },
+                    AllowedCorsOrigins =     { "https://localhost:5444" },
                     // ở client này cho phép chuy cập đến những cái này
                     AllowedScopes = new List<string>
                     {
@@ -69,7 +72,7 @@ namespace SocialNetworkingApi.IdentityServer
                         IdentityServerConstants.StandardScopes.OfflineAccess,
                         "api.WebApp"
                     }
-                 },
+                 },               
                 new Client
                 {
                     ClientId = "swagger",

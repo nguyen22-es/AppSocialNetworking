@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace DataAccess.Entities
+namespace Data.Entities
 {
     public class Posts
     {

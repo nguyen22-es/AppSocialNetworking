@@ -1,5 +1,5 @@
 ﻿
-using DataAccess.Entities;
+using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace DataAccess.Configurations
+namespace Data.Configurations
 {
     public class FriendshipsConfiguration : IEntityTypeConfiguration<Friendships>
     {
