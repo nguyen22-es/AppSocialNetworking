@@ -123,7 +123,7 @@ namespace SocialNetworking.Hubs
 
                 var userViewModel = user.toUserViewModel();
 
-             userViewModel.Device = GetDevice();
+           //  userViewModel.Device = GetDevice();
            
 
              if (!_Connections.Any(u => u.Username == user.UserName))

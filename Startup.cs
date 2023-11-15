@@ -3,6 +3,7 @@ using Data;
 using Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SocialNetworking.Hubs;
@@ -44,8 +45,8 @@ namespace SocialNetworking
             services.AddTransient<ICommentsDbRepository, CommentsRepository>();
             services.AddTransient<IMessageDbRepository, MessageRepository>();
             services.AddTransient<IPostDbRepository, PostRepository>();
-         
-            // other services
+            services.AddScoped<RoleManager<IdentityRole>>();
+                // other services
             services.AddAutoMapper(typeof(Startup));
             var builder = services.AddIdentityServer(options =>
             {
@@ -64,30 +65,47 @@ namespace SocialNetworking
           .AddAspNetIdentity<ManagerUser>()
           .AddDeveloperSigningCredential();
 
-            /*  builder.Services.AddAuthentication("Bearer")
-      .AddIdentityServerAuthentication("Bearer", options =>
-      {
-          options.Authority = "https://localhost:5443";
-          options.ApiName = "WebApp";
-      });*/
 
-            services.AddAuthentication()
-    .AddIdentityServerAuthentication("Bearer", options =>
-    {
-        options.Authority = "https://localhost:5443";
-        options.ApiName = "WebApp";
-       
-    });
-
-            services.AddAuthorization(options =>
+            services.AddCors(options =>
             {
-                options.AddPolicy("Bearer", policy =>
+                options.AddPolicy("AllowOrigin", builder =>
                 {
-                    policy.AddAuthenticationSchemes("Bearer");
-                    policy.RequireAuthenticatedUser();
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
                 });
             });
 
+           /* services.AddAuthentication("Bearer")
+      .AddIdentityServerAuthentication("Bearer", options =>
+      {
+          options.ApiName = "CoffeeAPI";
+          options.Authority = "https://localhost:5443";
+      });*/
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Bearer"; // Chắc chắn rằng mặc định là Bearer
+            })
+.AddJwtBearer("Bearer", options =>
+{
+    options.Authority = "https://localhost:5443"; // Thay thế bằng URL của IdentityServer của bạn
+    options.Audience = "CoffeeAPI.read"; // Thay thế bằng tên nguồn tài nguyên của API
+});
+            /*  services.AddAuthentication("Bearer")
+              .AddLocalApi("Bearer", options =>
+              {
+                  options.ExpectedScope = "CoffeeAPI.read";
+
+              });*/
+
+             services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("Bearer", policy =>
+                    {
+                        policy.AddAuthenticationSchemes("Bearer");
+                        policy.RequireAuthenticatedUser();
+                    });
+                });
 
             services.AddRazorPages(options =>
             {
@@ -116,23 +134,23 @@ namespace SocialNetworking
                     {
                         Implicit = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri(Configuration["AuthorityUrl"] + "/connect/authorize"),
-                            Scopes = new Dictionary<string, string> { { "api.WebApp", "WebApp API" } }
-                        },
-                    },
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-                        },
-                        new List<string>{ "api.WebApp" }
+                            AuthorizationUrl = new Uri("https://localhost:5000/connect/authorize"),
+                            Scopes = new Dictionary<string, string> { { "CoffeeAPI.read", "CoffeeAPI.write" } }
+
+                        }
                     }
                 });
 
-
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new List<string>{ "CoffeeAPI.read" }
+        }
+    });
             });
 
 
@@ -160,15 +178,15 @@ namespace SocialNetworking
             app.UseIdentityServer();
 
             app.UseAuthentication();
-
+         
             app.UseRouting();
-
+         
             app.UseAuthorization();
-
+            app.UseCors("AllowOrigin");
             app.UseEndpoints(endpoints =>
             {
            
-              //  endpoints.MapDefaultControllerRoute();
+                endpoints.MapDefaultControllerRoute().RequireCors("AllowOrigin");
                 endpoints.MapRazorPages();
                 endpoints.MapHub<ChatHub>("/chatHub");
             });

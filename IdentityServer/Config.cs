@@ -26,8 +26,8 @@ namespace SocialNetworkingApi.IdentityServer
         public static IEnumerable<ApiResource> ApiResources =>
             new ApiResource[]
             {
-              
-                new ApiResource("api.WebApp", "WebApp API")
+
+                 new ApiResource("CoffeeAPI.read","CoffeeAPI.write")
             };
 
 
@@ -35,7 +35,7 @@ namespace SocialNetworkingApi.IdentityServer
         public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
         {
-                new ApiScope("api.WebApp", "WebApp API"),
+                new ApiScope("CoffeeAPI.read","CoffeeAPI.write"),
                
         };
 
@@ -46,33 +46,54 @@ namespace SocialNetworkingApi.IdentityServer
         public static IEnumerable<Client> Clients =>
             new Client[]
             {
-               
+             new Client
+        {
+            ClientId = "cwm.client",
+            ClientName = "Client Credentials Client",
+              AllowedCorsOrigins =     { "https://localhost:5444" },
+                    RedirectUris = { "https://localhost:5444/signin-oidc" },
+                    FrontChannelLogoutUri = "https://localhost:5444/signout-oidc",
+                    PostLogoutRedirectUris = { "https://localhost:5444/signout-callback-oidc" },
+            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            ClientSecrets = { new Secret("secret".Sha256()) },
+            AllowedScopes = { "CoffeeAPI.read" }
+        },
                 new Client
                 {
-                  
-                    ClientId = "WebApp",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
-
-                    AllowedGrantTypes = GrantTypes.Code,
-                    RequireConsent = false,
-                    RequirePkce = true,
-                    AllowOfflineAccess = true,
-                    // đăng nhập thành công thì redirect lại theo đường dẫn này
-                    RedirectUris = { "https://localhost:5444/signin-oidc" },
-                 //   FrontChannelLogoutUri = "https://localhost:5444/signout-oidc",
-                    // khi logout nó chạy cổng này và sử lý logout bên kia
-                    PostLogoutRedirectUris = { "https://localhost:5444/" },
-                    AllowedCorsOrigins =     { "https://localhost:5444" },
-                    // ở client này cho phép chuy cập đến những cái này
-                    AllowedScopes = new List<string>
+                    ClientId = "m2m.client",
+                    ClientName = "Client Credentials Client",
+                       AllowAccessTokensViaBrowser = true,
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    ClientSecrets = { new Secret("ClientSecret1".Sha256()) },
+                       AllowedScopes = new List<string>
                     {
-                        // ở đây chúng ta cho chuy cập cả thông tin user lần api
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.OfflineAccess,
-                        "api.WebApp"
+                        "CoffeeAPI.read"
                     }
-                 },               
+                },
+                // interactive client using code flow + pkce
+                new Client
+                {
+                    ClientId = "interactive",
+                    ClientSecrets = { new Secret("ClientSecret1".Sha256()) },
+                    AllowedGrantTypes = GrantTypes.Code,
+                   AllowAccessTokensViaBrowser = false,
+                       AllowedCorsOrigins =     { "https://localhost:5444" },
+                    RedirectUris = { "https://localhost:5444/signin-oidc" },
+                    FrontChannelLogoutUri = "https://localhost:5444/signout-oidc",
+                    PostLogoutRedirectUris = { "https://localhost:5444/signout-callback-oidc" },
+                    AllowOfflineAccess = true,
+                          AllowedScopes = new List<string>
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "CoffeeAPI.read"
+                    },
+                    RequirePkce = true,
+                    RequireConsent = false,
+                    AllowPlainTextPkce = false
+                },
                 new Client
                 {
                     ClientId = "swagger",
@@ -81,17 +102,21 @@ namespace SocialNetworkingApi.IdentityServer
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
                     RequireConsent = false,
-
+                      ClientSecrets = { new Secret("ClientSecret1".Sha256()) },
                     RedirectUris =           { "https://localhost:5000/swagger/oauth2-redirect.html" }, // chuyển hướng
                     PostLogoutRedirectUris = { "https://localhost:5000/swagger/oauth2-redirect.html" },// chuyển hướng đăng xuất
                     AllowedCorsOrigins =     { "https://localhost:5000" }, // cho phép nguồn gốc cores
 
-                    AllowedScopes = new List<string>
+                  
+                    
+                       
+                         AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "api.WebApp"
+                        "CoffeeAPI.read"
                     }
+
                 },
                
             };

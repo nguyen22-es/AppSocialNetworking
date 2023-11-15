@@ -113,10 +113,12 @@ namespace SocialNetworking.Models
                 PhoneNumber = user.PhoneNumber,
                 Email = user.Email,
                 Avatar = user.Avatar,              
-                FullName = user.LastName + user.FistName,
+                LastName = user.LastName,
+                FirstName = user.FistName,
                 Gender = user.Gender,
                 Birthdate = user.Birthdate,
-                Username = user.UserName,                               
+                Username = user.UserName, 
+                
             };
         }
 

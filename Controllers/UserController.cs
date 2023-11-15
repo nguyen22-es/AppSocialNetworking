@@ -12,23 +12,29 @@ using SocialNetworking.Data;
 using SocialNetworking.Models;
 using Data.Entities;
 using Data;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace SocialNetworking.Controllers
 {
+    [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+   
     public class UserController : ControllerBase
     {
 
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<ManagerUser> _userManager;
+        private readonly SignInManager<ManagerUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ManageAppDbContext _context;
         public UserController(UserManager<ManagerUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<IdentityRole> roleManager, IHttpContextAccessor contextAccessor,
             ManageAppDbContext context, IConfiguration configuration)
         {
+            _httpContextAccessor = contextAccessor;
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
@@ -36,18 +42,66 @@ namespace SocialNetworking.Controllers
 
         }
 
-
-
+        [Authorize("Bearer")]
         [HttpGet]
-       
         public async Task<IActionResult> GetUsers()
         {
+     
+
+           
+        
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user != null)
+                {
+                    var uservm = new UserViewModel
+
+                    {
+                        Id = user.Id,
+                        Username = user.UserName,
+                        Birthdate = user.Birthdate,
+                        Email = user.Email,
+                        PhoneNumber = user.PhoneNumber,
+                        FirstName = user.FistName,
+                        LastName = user.LastName,
+                        Avatar = user.Avatar,
+                        Gender = user.Gender
+                    };
+
+                    return Ok(uservm);
+                }
+
+            
             
 
-            var user = await _userManager.FindByIdAsync(_userManager.GetUserId(User));
-            var uservms = user.toUserViewModel();
 
-            return Ok(uservms);
+
+                return NoContent(); 
+
+            
+
+          
+            
+
+          
+
+
+
+            /*  var users = _userManager.Users;
+
+            var uservms = await users.Select(user => new UserViewModel() // vì muốn xem lên ta dùng UserVm
+             {
+                 Id = user.Id,
+                 Username = user.UserName,
+                 Birthdate = user.Birthdate,
+                 Email = user.Email,
+                 PhoneNumber = user.PhoneNumber,
+                 FirstName = user.FistName, // Sửa lỗi chính tả ở đây
+                 LastName = user.LastName
+
+             }).ToListAsync();
+
+             return Ok(uservms);*/
         }
 
         [HttpPost]
@@ -79,6 +133,9 @@ namespace SocialNetworking.Controllers
             return NoContent();
         }
 
-
+        private string IdentityName
+        {
+            get { return User.Identity.Name; }
+        }
     }
 }
